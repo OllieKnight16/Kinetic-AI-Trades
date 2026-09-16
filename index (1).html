@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinetic AI Trades — Algorithmic Market Data Feed</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0c10'/%3E%3Crect x='7' y='18' width='4' height='8' rx='1' fill='%23c9a962'/%3E%3Crect x='14' y='12' width='4' height='14' rx='1' fill='%23c9a962'/%3E%3Crect x='21' y='6' width='4' height='20' rx='1' fill='%23c9a962'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0c10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;650;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151b;
+    --surface-2: #171b22;
+    --border: #232830;
+    --text: #eef1f4;
+    --text-muted: #838d99;
+    --text-dim: #565f6b;
+    --accent: #c9a962;
+    --accent-dim: #8a7440;
+    --accent-soft: #c9a96214;
+    --risk: #b8544a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ── Nav ─────────────────────────────────────────── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10, 12, 16, 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .wordmark {
+    font-weight: 650;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .wordmark-icon { flex-shrink: 0; }
+  .wordmark span { color: var(--accent); }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent);
+    color: #14120a;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* ── Hero ────────────────────────────────────────── */
+  .hero {
+    padding: 110px 0 90px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 54px;
+    line-height: 1.08;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    max-width: 720px;
+    margin-bottom: 24px;
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 560px;
+    margin-bottom: 36px;
+  }
+  .hero-actions { display: flex; gap: 14px; }
+  .btn-primary {
+    background: var(--accent);
+    color: #14120a;
+    padding: 13px 24px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 13px 24px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    display: inline-block;
+    transition: border-color 0.15s ease;
+  }
+  .btn-secondary:hover { border-color: var(--text-dim); }
+
+  /* ── Section shared ──────────────────────────────── */
+  section { padding: 74px 0; border-bottom: 1px solid var(--border); }
+  h2 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    max-width: 520px;
+    margin-bottom: 44px;
+  }
+
+  /* ── What you get ────────────────────────────────── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .feature {
+    background: var(--surface);
+    padding: 28px 26px;
+  }
+  .feature-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .feature h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .feature p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* ── Methodology ─────────────────────────────────── */
+  .risk-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--risk);
+    border-radius: 8px;
+    padding: 22px 24px;
+    align-self: start;
+  }
+  .risk-box .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--risk);
+    margin-bottom: 10px;
+  }
+  .risk-box p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── How it works steps ──────────────────────────── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 20px;
+    padding: 26px 0;
+    border-top: 1px solid var(--border);
+  }
+  .step:last-child { padding-bottom: 0; }
+  .step-num {
+    font-size: 14px;
+    color: var(--accent);
+    padding-top: 2px;
+  }
+  .step-body h3 {
+    font-size: 16.5px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .step-body p {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  /* ── Pricing ──────────────────────────────────────── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px 30px;
+  }
+  .price-card.vip {
+    border-color: var(--accent-dim);
+    background: linear-gradient(180deg, var(--accent-soft), var(--surface) 60%);
+  }
+  .tier-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .tier-name.vip-name { color: var(--accent); }
+  .tier-sub { font-size: 13.5px; color: var(--text-dim); margin-bottom: 24px; }
+  .price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 38px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .price span { font-size: 15px; color: var(--text-dim); font-weight: 400; }
+  .trial-note {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 26px;
+  }
+  .tier-list { list-style: none; margin-bottom: 28px; }
+  .tier-list li {
+    font-size: 14.5px;
+    color: var(--text-muted);
+    padding: 9px 0;
+    border-top: 1px solid var(--border);
+  }
+  .tier-list li:first-child { border-top: none; }
+  .price-card .btn-primary,
+  .price-card .btn-secondary { width: 100%; text-align: center; }
+
+  /* ── Policies ─────────────────────────────────────── */
+  .policy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px;
+  }
+  .policy h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .policy p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Footer ───────────────────────────────────────── */
+  footer { padding: 44px 0; }
+  footer .wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer .wordmark { font-size: 15px; }
+  .footer-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 760px) {
+    .hero h1 { font-size: 38px; }
+    .hero p { font-size: 16px; }
+    .features { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .policy-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    footer .wrap { flex-direction: column; gap: 10px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="wordmark">
+      <svg class="wordmark-icon" width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="7" fill="var(--surface-2)" stroke="var(--border)"/>
+        <rect x="7" y="18" width="4" height="8" rx="1" fill="var(--accent)"/>
+        <rect x="14" y="12" width="4" height="14" rx="1" fill="var(--accent)"/>
+        <rect x="21" y="6" width="4" height="20" rx="1" fill="var(--accent)"/>
+      </svg>
+      Kinetic AI <span>Trades</span>
+    </div>
+    <div class="nav-links">
+      <a href="#what-you-get">What you get</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#policies">Policies</a>
+      <a href="https://discord.gg/Qw3ZS9HttU" class="nav-cta">Join the Discord</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Structured algorithmic alerts, delivered the moment they're valid.</h1>
+    <p>Every alert comes with an entry, stop, and target set by a defined risk framework — not a hunch. Built for a community that wants the reasoning behind the data, not just the output.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn-primary">View pricing</a>
+      <a href="#what-you-get" class="btn-secondary">See what's included</a>
+    </div>
+  </div>
+</section>
+
+<section id="what-you-get">
+  <div class="wrap">
+    <h2>An algorithmic data feed built around one thing: disciplined risk.</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-num mono">Data Feed</div>
+        <h3>Entry, stop, and target — every time</h3>
+        <p>No alert goes out without a defined invalidation point and a real, structural target level. If the risk isn't clean, it isn't sent.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-num mono">Reasoning</div>
+        <h3>The "why," not just the "what"</h3>
+        <p>Each alert reflects a precise, structured read of real market conditions — not a guess. The framework behind it has been tested against extensive historical data, so you're seeing a consistent process at work, not a one-off call.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-num mono">Community</div>
+        <h3>A real trading floor, not a broadcast channel</h3>
+        <p>General discussion, trade breakdowns, and direct access to ask questions — this is a community around the methodology, not a one-way feed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <div class="wrap">
+    <h2>How it actually works.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num mono">01</div>
+        <div class="step-body">
+          <h3>The system watches for manipulation</h3>
+          <p>Before anything else, price has to sweep real liquidity — a session high, a prior swing, a resting pool of stops. This is the market showing its hand, not a random candle.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mono">02</div>
+        <div class="step-body">
+          <h3>Then it waits for confirmation</h3>
+          <p>A single move isn't enough on its own. The system requires a second, independent condition to align in the same direction before anything is considered valid — a precise, structured check against real market behavior, not a single-point guess.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mono">03</div>
+        <div class="step-body">
+          <h3>Entry, stop, and target are all structural</h3>
+          <p>The stop is placed at the point that actually invalidates the idea, not an arbitrary distance. The target is drawn from real liquidity sitting ahead of price — a higher-timeframe order block, an unfilled gap, a session extreme — not a fixed number of points.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mono">04</div>
+        <div class="step-body">
+          <h3>Every rule is tested against real historical data</h3>
+          <p>The framework isn't adjusted after the fact based on a handful of recent trades. Every condition has been built and checked against extensive historical market data first, so what you're seeing live is a consistent, structured process — not something reactive or improvised.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mono">05</div>
+        <div class="step-body">
+          <h3>Alerts are sent as limit orders, not chases</h3>
+          <p>Rather than firing the moment price is at a level, the system proposes the level itself — giving you time to actually place the order before price arrives, instead of reacting to something that already happened.</p>
+        </div>
+      </div>
+    </div>
+    <div class="risk-box" style="margin-top:40px;">
+      <div class="label mono">RISK DISCLOSURE</div>
+      <p style="margin-bottom:14px;">Trading futures carries substantial risk of loss and is not suitable for every investor. Nothing shared in this service is financial advice. We are not registered financial advisors, commodity trading advisors, brokers, or investment professionals. Only trade with capital you can afford to lose.</p>
+      <p style="font-size:12.5px;letter-spacing:0.01em;">HYPOTHETICAL OR SIMULATED PERFORMANCE RESULTS HAVE CERTAIN INHERENT LIMITATIONS. UNLIKE AN ACTUAL PERFORMANCE RECORD, SIMULATED RESULTS DO NOT REPRESENT ACTUAL TRADING. SINCE THE TRADES SHOWN HAVE NOT NECESSARILY BEEN EXECUTED, THE RESULTS MAY HAVE UNDER- OR OVER-COMPENSATED FOR THE IMPACT OF CERTAIN MARKET FACTORS, SUCH AS LACK OF LIQUIDITY. NO REPRESENTATION IS BEING MADE THAT ANY ACCOUNT WILL OR IS LIKELY TO ACHIEVE PROFITS OR LOSSES SIMILAR TO THOSE SHOWN. PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS.</p>
+    </div>
+  </div>
+</section>
+
+<section id="get-started">
+  <div class="wrap" style="text-align:center;">
+    <h2 style="margin:0 auto 16px;">Ready to see it for yourself?</h2>
+    <p style="color:var(--text-muted);font-size:16px;max-width:480px;margin:0 auto 36px;">Join the Discord to see real trade previews first, or go straight to starting your free trial.</p>
+    <div class="hero-actions" style="justify-content:center;">
+      <a href="https://discord.gg/Qw3ZS9HttU" class="btn-secondary">Join the Discord</a>
+      <a href="PASTE_YOUR_STRIPE_MEMBER_LINK_HERE" class="btn-primary">Start free trial</a>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>Start free. Cancel any time.</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="tier-name">Member</div>
+        <div class="tier-sub">Full data feed access</div>
+        <div class="price">$75<span>/month</span></div>
+        <div class="trial-note mono">First 30 days free</div>
+        <ul class="tier-list">
+          <li>Every algorithmic alert, live</li>
+          <li>General chat &amp; trade discussion</li>
+          <li>Announcements &amp; updates</li>
+          <li>Direct contact for questions</li>
+        </ul>
+        <a href="PASTE_YOUR_STRIPE_MEMBER_LINK_HERE" class="btn-secondary">Start free trial</a>
+      </div>
+      <div class="price-card vip">
+        <div class="tier-name vip-name">VIP Member</div>
+        <div class="tier-sub">Everything in Member, plus more</div>
+        <div class="price">$90<span>/month</span></div>
+        <div class="trial-note mono">First 30 days free</div>
+        <ul class="tier-list">
+          <li>Everything in Member</li>
+          <li>Private VIP chat</li>
+          <li>VIP role &amp; recognition</li>
+        </ul>
+        <a href="PASTE_YOUR_STRIPE_VIP_LINK_HERE" class="btn-primary">Start free trial</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="policies">
+  <div class="wrap">
+    <h2>The fine print, in plain language.</h2>
+    <div class="policy-grid">
+      <div class="policy">
+        <h3>Cancellation</h3>
+        <p>Cancel any time from your billing portal or by contacting us directly — you'll retain access through the end of your current billing period. No cancellation fees.</p>
+      </div>
+      <div class="policy">
+        <h3>Refunds</h3>
+        <p>Because access to the data feed is delivered immediately, subscription charges are generally non-refundable once a billing period has started. Reach out if something's gone wrong — we handle exceptions on a case-by-case basis.</p>
+      </div>
+      <div class="policy">
+        <h3>Trial period</h3>
+        <p>New subscriptions include a 30-day free trial. You won't be charged until the trial ends, and you can cancel any time before then at no cost.</p>
+      </div>
+      <div class="policy">
+        <h3>Contact</h3>
+        <p>For billing questions, cancellations, or anything else, message us directly in Discord or reach out at the email below. We aim to respond within 48 hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="wordmark">
+      <svg class="wordmark-icon" width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="7" fill="var(--surface-2)" stroke="var(--border)"/>
+        <rect x="7" y="18" width="4" height="8" rx="1" fill="var(--accent)"/>
+        <rect x="14" y="12" width="4" height="14" rx="1" fill="var(--accent)"/>
+        <rect x="21" y="6" width="4" height="20" rx="1" fill="var(--accent)"/>
+      </svg>
+      Kinetic AI <span style="color:var(--accent);">Trades</span>
+    </div>
+    <div class="footer-meta">KineticAITrades@outlook.com</div>
+  </div>
+</footer>
+
+</body>
+</html>
