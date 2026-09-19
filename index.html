@@ -234,12 +234,12 @@
     border-radius: 10px;
     padding: 32px 30px;
   }
-  .price-card.vip {
+  .price-card.premium {
     border-color: var(--accent-dim);
     background: linear-gradient(180deg, var(--accent-soft), var(--surface) 60%);
   }
   .tier-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-  .tier-name.vip-name { color: var(--accent); }
+  .tier-name.premium-name { color: var(--accent); }
   .tier-sub { font-size: 13.5px; color: var(--text-dim); margin-bottom: 24px; }
   .price {
     font-family: 'IBM Plex Mono', monospace;
@@ -425,7 +425,8 @@
       <div class="price-card">
         <div class="tier-name">Member</div>
         <div class="tier-sub">Full data feed access</div>
-        <div class="price">$75<span>/month</span></div>
+        <div class="price" style="margin-bottom:4px;">$75<span>/month</span></div>
+        <div style="font-size:13px;color:var(--accent);margin-bottom:26px;font-family:'IBM Plex Mono',monospace;">First 14 days free</div>
         <ul class="tier-list">
           <li>Every algorithmic alert, live</li>
           <li>General chat &amp; trade discussion</li>
@@ -434,15 +435,15 @@
         </ul>
         <a href="https://buy.stripe.com/dRm00k8MYgii1ragv85Vu00" class="btn-secondary">Subscribe now</a>
       </div>
-      <div class="price-card vip">
-        <div class="tier-name vip-name">VIP Member</div>
+      <div class="price-card premium">
+        <div class="tier-name premium-name">Premium Member</div>
         <div class="tier-sub">Everything in Member, plus more</div>
         <div class="price" style="margin-bottom:4px;">$90<span>/month</span></div>
-        <div style="font-size:13px;color:var(--accent);margin-bottom:26px;font-family:'IBM Plex Mono',monospace;">First 14 days free</div>
+        <div style="font-size:13px;color:var(--accent);margin-bottom:26px;font-family:'IBM Plex Mono',monospace;">First 30 days free</div>
         <ul class="tier-list">
           <li>Everything in Member</li>
-          <li>Private VIP chat</li>
-          <li>VIP role &amp; recognition</li>
+          <li>Private Premium chat</li>
+          <li>Premium role &amp; recognition</li>
         </ul>
         <a href="https://buy.stripe.com/4gM3cw3sEgii3zi1Ae5Vu01" class="btn-primary">Subscribe now</a>
       </div>
@@ -464,7 +465,7 @@
       </div>
       <div class="policy">
         <h3>Trial period</h3>
-        <p>VIP Member includes a 14-day free trial — you won't be charged until it ends, and can cancel any time before then at no cost. Member does not include a trial.</p>
+        <p>Both plans include a free trial before any charge — 14 days for Member, 30 days for Premium. You won't be charged until the trial ends, and can cancel any time before then at no cost.</p>
       </div>
       <div class="policy" id="contact">
         <h3>Contact</h3>
